@@ -4,14 +4,13 @@
 // Each section below is one "room" of the portfolio website.
 // ============================================================
 
-import { useState, useRef } from "react";
+import { useState } from "react";
 import {
   CheckCircle,
   Bug,
   Code2,
   MessageSquare,
   FlaskConical,
-  Upload,
   FileText,
   Eye,
   X,
@@ -740,10 +739,6 @@ type Certificate = {
   year: string;
   description: string;
   image?: string;
-  // uploadedFile stores the browser's File object if the user uploads one
-  uploadedFile?: File;
-  // previewUrl is a temporary web address created for the uploaded file
-  previewUrl?: string;
 };
 
 function Certificates() {
@@ -781,28 +776,6 @@ function Certificates() {
   // Which certificate the user is currently previewing (null = none)
   const [previewing, setPreviewing] = useState<Certificate | null>(null);
 
-  // useRef is like putting a sticky note on the hidden file-input element
-  // so we can trigger it (open the file picker) from a button click.
-  const fileRefs = useRef<Record<number, HTMLInputElement | null>>({});
-
-  // Called when the user picks a file from their computer.
-  // certId tells us which certificate this upload belongs to.
-  const handleUpload = (certId: number, file: File) => {
-    // URL.createObjectURL creates a temporary browser URL for the file
-    // — like a temporary link that only works in this browser session.
-    const url = URL.createObjectURL(file);
-
-    // Update the certificate in our list by replacing its entry
-    // with a new one that includes the file and preview URL.
-    setCerts((prev) =>
-      prev.map((c) =>
-        c.id === certId
-          ? { ...c, uploadedFile: file, previewUrl: url }
-          : c
-      )
-    );
-  };
-
   return (
     <section id="certificates" className="bg-[#f9f8f6] py-24">
       <div className="max-w-6xl mx-auto px-6">
@@ -820,7 +793,7 @@ function Certificates() {
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-5xl mx-auto">
           {certs.map((cert) => {
-            const mediaSrc = cert.previewUrl || cert.image;
+            const mediaSrc = cert.image;
             const hasMedia = Boolean(mediaSrc);
 
             return (
@@ -875,27 +848,7 @@ function Certificates() {
                   </p>
 
                   {/* Hidden file input — like a backstage door; the button below opens it */}
-                  <input
-                    ref={(el) => {
-                      fileRefs.current[cert.id] = el;
-                    }}
-                    type="file"
-                    accept=".pdf,image/*"
-                    className="hidden"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file) handleUpload(cert.id, file);
-                    }}
-                  />
-
-                  {/* Upload button — clicking this triggers the hidden file input */}
-                  <button
-                    onClick={() => fileRefs.current[cert.id]?.click()}
-                    className="mt-4 w-full flex items-center justify-center gap-2 border border-dashed border-[#6b6b6b]/30 rounded py-2.5 text-xs font-semibold text-[#6b6b6b] hover:border-[#6f4e37] hover:text-[#6f4e37] transition-colors duration-200"
-                  >
-                    <Upload size={13} />
-                    {cert.previewUrl ? "Replace file" : "Upload certificate"}
-                  </button>
+                  {/* No upload control: certificates are displayed read-only. */}
                 </div>
               </div>
             );
@@ -932,19 +885,11 @@ function Certificates() {
 
             {/* Preview area — renders PDF or image depending on file type */}
             <div className="overflow-auto max-h-[75vh] bg-[#f9f8f6] p-4">
-              {previewing.uploadedFile?.type === "application/pdf" ? (
-                <iframe
-                  src={previewing.previewUrl}
-                  className="w-full h-[70vh] rounded"
-                  title={previewing.name}
-                />
-              ) : (
-                <img
-                  src={previewing.previewUrl || previewing.image}
-                  alt={previewing.name}
-                  className="w-full max-h-[70vh] object-contain rounded"
-                />
-              )}
+              <img
+                src={previewing.image}
+                alt={previewing.name}
+                className="w-full max-h-[70vh] object-contain rounded"
+              />
             </div>
           </div>
         </div>
