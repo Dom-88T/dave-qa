@@ -1,0 +1,4 @@
+/* Google Fonts import - like linking a stylesheet from the web */
+/* DM Serif Display is used for big headings - it looks elegant and professional */
+/* Inter is used for body text - it's clean and very easy to read on screens */
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@300;400;500;600;700&display=swap');
